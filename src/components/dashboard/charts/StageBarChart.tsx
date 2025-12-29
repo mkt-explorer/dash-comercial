@@ -1,14 +1,7 @@
-import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target } from 'lucide-react';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { FUNNEL_CONFIG } from '../constants';
+import { FUNNEL_CONFIG, PIE_COLORS } from '../constants';
 import { formatNumber } from '../utils/formatters';
 import type { StageData, FunnelFilter } from '../types';
 
@@ -19,6 +12,8 @@ interface StageBarChartProps {
 }
 
 export function StageBarChart({ data, selectedFunnel, totalOpportunities }: StageBarChartProps) {
+  const colors = PIE_COLORS;
+
   return (
     <Card>
       <CardHeader>
@@ -26,62 +21,67 @@ export function StageBarChart({ data, selectedFunnel, totalOpportunities }: Stag
           <div>
             <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-2">
               <Target className="w-5 h-5" />
-              Oportunidades por Estágio
+              Funil de Vendas
             </CardTitle>
             <CardDescription className="mt-2">
-              Distribuição das oportunidades nos diferentes estágios do funil
+              Distribuição de oportunidades por estágio
               {selectedFunnel !== 'all' && ` - ${FUNNEL_CONFIG[selectedFunnel].label}`}
             </CardDescription>
           </div>
           <Badge className={`bg-linear-to-r ${FUNNEL_CONFIG[selectedFunnel].gradient} text-white`}>
-            {formatNumber(totalOpportunities)} total
+            {formatNumber(totalOpportunities)} oportunidades
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer 
-          config={{
-            count: {
-              label: "Quantidade",
-              color: FUNNEL_CONFIG[selectedFunnel].color,
-            },
-          }}
-          className="aspect-auto h-112.5 w-full"
-        >
-          <BarChart
-            data={data}
-            layout="vertical"
-            margin={{ top: 5, right: 30, left: 120, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} className="stroke-muted" />
-            <XAxis type="number" tickLine={false} axisLine={false} />
-            <YAxis
-              type="category"
-              dataKey="stage"
-              tickLine={false}
-              axisLine={false}
-              width={110}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  indicator="line"
-                  labelFormatter={(value) => `Estágio: ${value}`}
-                  formatter={(value: any, name: string | number) => {
-                    if (name === 'count') return [formatNumber(value), ' Qtde'];
-                    return [value, name];
-                  }}
-                />
-              }
-            />
-            <Bar
-              dataKey="count"
-              fill={FUNNEL_CONFIG[selectedFunnel].color}
-              radius={[0, 8, 8, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
+
+      <CardContent className="px-4 pt-4 sm:px-6 sm:pt-6">
+        <div className="space-y-4">
+          {data.map((row, idx) => {
+            const count = row.count ?? 0;
+            const percent = totalOpportunities > 0 ? (count / totalOpportunities) * 100 : 0;
+            const color = colors[idx % colors.length] || FUNNEL_CONFIG[selectedFunnel].color;
+
+            return (
+              <div key={row.stage} className="flex items-center gap-4">
+                <div className="w-36 text-sm font-medium text-slate-700 pt-1">{row.stage}</div>
+
+                <div className="flex-1 flex items-center gap-4">
+                  <div
+                    className="flex items-center justify-center text-white text-sm font-semibold rounded-md min-h-10 min-w-10"
+                    style={{
+                      background: color,
+                    }}
+                  >
+                    {formatNumber(count)}
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="h-10 bg-slate-100 rounded-md relative overflow-hidden">
+                      {count > 0 && (
+                        <div
+                          className="absolute left-0 top-0 bottom-0 rounded-md"
+                          style={{ width: `${percent}%`, background: color }}
+                        />
+                      )}
+
+                      {count === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-500">
+                          Nenhuma oportunidade
+                        </div>
+                      )}
+
+                      <div className="h-10" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right text-sm text-slate-600 pt-1">
+                  <div className="text-xs text-slate-400">{percent.toFixed(1)}%</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );

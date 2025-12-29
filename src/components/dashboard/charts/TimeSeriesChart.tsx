@@ -23,10 +23,10 @@ export function TimeSeriesChart({ data }: TimeSeriesChartProps) {
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            Crescimento do Pipeline
+            Volume Diário de Oportunidades por Funil
           </CardTitle>
           <CardDescription className="mt-2">
-            Evolução consolidada de todos os funis de oportunidades nos últimos 30 dias
+            Evolução diária do volume de oportunidades criadas em cada funil ao longo dos últimos 30 dias.
           </CardDescription>
         </div>
         <Badge variant="outline" className="font-semibold">

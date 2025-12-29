@@ -50,7 +50,7 @@ export default function OpportunitiesDashboard() {
         <StatsGrid stats={stats} />
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               Visão Geral
@@ -59,14 +59,18 @@ export default function OpportunitiesDashboard() {
               <Target className="w-4 h-4" />
               Estágios
             </TabsTrigger>
-            <TabsTrigger value="distribution" className="gap-2">
-              <PieChartIcon className="w-4 h-4" />
-              Distribuição
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
             <TimeSeriesChart data={timeSeriesData} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FunnelPieChart data={funnelDistribution} />
+              <FunnelSummaryCard 
+                data={funnelDistribution} 
+                totalOpportunities={opportunities.length}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="stages" className="space-y-6 mt-6">
@@ -76,16 +80,6 @@ export default function OpportunitiesDashboard() {
               totalOpportunities={stats.totalOpportunities}
             />
             <StageDetailsGrid data={stageData} />
-          </TabsContent>
-
-          <TabsContent value="distribution" className="space-y-6 mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <FunnelPieChart data={funnelDistribution} />
-              <FunnelSummaryCard 
-                data={funnelDistribution} 
-                totalOpportunities={opportunities.length}
-              />
-            </div>
           </TabsContent>
         </Tabs>
       </div>
